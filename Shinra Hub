@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>403 — Não autorizado</title>
+    <style>
+      html, body {
+        background: black;
+        color: lime;
+        font-family: monospace;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>403 — Acesso negado</h1>
+
+    <!--[[SCRIPT]]
+    loadstring("print('Executando ShinraHub')")()
+    [[/SCRIPT]]-->
+  </body>
+</html>
