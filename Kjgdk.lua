@@ -5,76 +5,145 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local VirtualUser = game:GetService("VirtualUser")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 
 -- Variáveis
 local Stats = {
     Money = 0,
     SeedsPurchased = {},
-    PlatformsPurchased = 0,
     RowsUnlocked = 0,
     StartTime = os.time()
 }
 
--- Criar UI com Blur
-local function CreateBlurUI()
+-- IDs das imagens para ícones
+local IconIds = {
+    Money = "rbxassetid://6031280882", -- Ícone de dinheiro
+    Seeds = "rbxassetid://6035067830", -- Ícone de planta
+    Rows = "rbxassetid://6031075938", -- Ícone de grade
+    Time = "rbxassetid://6031302933", -- Ícone de relógio
+    Player = "rbxassetid://3926305904", -- Ícone de jogador
+    Status = "rbxassetid://6031222726", -- Ícone de status
+    AntiAFK = "rbxassetid://6034287533", -- Ícone de escudo
+    Performance = "rbxassetid://6031222726", -- Ícone de raio
+    Farm = "rbxassetid://6035067830" -- Ícone de farm
+}
+
+-- Criar UI Responsiva para Todos os Dispositivos
+local function CreateResponsiveUI()
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "BlessedHubUI"
+    ScreenGui.Name = "BlessedHubResponsiveUI"
     ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
     
     -- Efeito Blur
     local BlurEffect = Instance.new("BlurEffect")
-    BlurEffect.Size = 10
+    BlurEffect.Size = 8
     BlurEffect.Parent = game:GetService("Lighting")
     
-    -- Container principal
+    -- Container principal responsivo
     local MainContainer = Instance.new("Frame")
     MainContainer.Name = "MainContainer"
-    MainContainer.Size = UDim2.new(0, 400, 0, 300)
-    MainContainer.Position = UDim2.new(0.5, -200, 0.5, -150)
-    MainContainer.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    MainContainer.BackgroundTransparency = 0.3
-    MainContainer.BorderSizePixel = 0
+    MainContainer.Size = UDim2.new(0.8, 0, 0.7, 0) -- 80% da largura, 70% da altura
+    MainContainer.Position = UDim2.new(0.1, 0, 0.15, 0) -- Centralizado
+    MainContainer.AnchorPoint = Vector2.new(0.5, 0.5)
+    MainContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
+    MainContainer.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+    MainContainer.BackgroundTransparency = 0.1
+    MainContainer.BorderSizePixel = 2
+    MainContainer.BorderColor3 = Color3.fromRGB(212, 175, 55)
     MainContainer.Parent = ScreenGui
     
     local Corner = Instance.new("UICorner")
-    Corner.CornerRadius = UDim.new(0, 15)
+    Corner.CornerRadius = UDim.new(0, 12)
     Corner.Parent = MainContainer
+    
+    -- Header
+    local Header = Instance.new("Frame")
+    Header.Name = "Header"
+    Header.Size = UDim2.new(1, 0, 0, 80)
+    Header.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    Header.BorderSizePixel = 0
+    Header.Parent = MainContainer
+    
+    local HeaderCorner = Instance.new("UICorner")
+    HeaderCorner.CornerRadius = UDim.new(0, 12)
+    HeaderCorner.Parent = Header
+    
+    -- Barra dourada
+    local GoldBar = Instance.new("Frame")
+    GoldBar.Name = "GoldBar"
+    GoldBar.Size = UDim2.new(1, 0, 0, 3)
+    GoldBar.Position = UDim2.new(0, 0, 1, -3)
+    GoldBar.BackgroundColor3 = Color3.fromRGB(212, 175, 55)
+    GoldBar.BorderSizePixel = 0
+    GoldBar.Parent = Header
     
     -- Título
     local Title = Instance.new("TextLabel")
     Title.Name = "Title"
-    Title.Size = UDim2.new(1, 0, 0, 50)
-    Title.Position = UDim2.new(0, 0, 0, 0)
+    Title.Size = UDim2.new(1, -40, 0.5, 0)
+    Title.Position = UDim2.new(0, 20, 0, 10)
     Title.BackgroundTransparency = 1
-    Title.Text = "BLESSED HUB - KAITUN MODE"
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.Text = "BLESSED HUB - KAITUN"
+    Title.TextColor3 = Color3.fromRGB(212, 175, 55)
     Title.TextScaled = true
     Title.Font = Enum.Font.GothamBold
-    Title.Parent = MainContainer
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.Parent = Header
     
-    -- Informações
-    local InfoFrame = Instance.new("Frame")
-    InfoFrame.Name = "InfoFrame"
-    InfoFrame.Size = UDim2.new(1, -40, 0, 180)
-    InfoFrame.Position = UDim2.new(0, 20, 0, 60)
-    InfoFrame.BackgroundTransparency = 1
-    InfoFrame.Parent = MainContainer
+    -- Subtítulo
+    local SubTitle = Instance.new("TextLabel")
+    SubTitle.Name = "SubTitle"
+    SubTitle.Size = UDim2.new(1, -40, 0.3, 0)
+    SubTitle.Position = UDim2.new(0, 20, 0.5, 0)
+    SubTitle.BackgroundTransparency = 1
+    SubTitle.Text = "Plants vs Brainrots"
+    SubTitle.TextColor3 = Color3.fromRGB(200, 200, 200)
+    SubTitle.TextScaled = true
+    SubTitle.Font = Enum.Font.Gotham
+    SubTitle.TextXAlignment = Enum.TextXAlignment.Left
+    SubTitle.Parent = Header
     
-    local UIListLayout = Instance.new("UIListLayout")
-    UIListLayout.Padding = UDim.new(0, 8)
-    UIListLayout.Parent = InfoFrame
+    -- Container de informações principais
+    local MainInfoContainer = Instance.new("Frame")
+    MainInfoContainer.Name = "MainInfoContainer"
+    MainInfoContainer.Size = UDim2.new(1, -40, 0.4, 0)
+    MainInfoContainer.Position = UDim2.new(0, 20, 0, 100)
+    MainInfoContainer.BackgroundTransparency = 1
+    MainInfoContainer.Parent = MainContainer
+    
+    local MainGrid = Instance.new("UIGridLayout")
+    MainGrid.CellSize = UDim2.new(0.5, -10, 0.5, -10)
+    MainGrid.CellPadding = UDim2.new(0, 20, 0, 10)
+    MainGrid.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    MainGrid.VerticalAlignment = Enum.VerticalAlignment.Center
+    MainGrid.Parent = MainInfoContainer
+    
+    -- Container de informações secundárias
+    local SecondaryInfoContainer = Instance.new("Frame")
+    SecondaryInfoContainer.Name = "SecondaryInfoContainer"
+    SecondaryInfoContainer.Size = UDim2.new(1, -40, 0.3, 0)
+    SecondaryInfoContainer.Position = UDim2.new(0, 20, 0.4, 100)
+    SecondaryInfoContainer.BackgroundTransparency = 1
+    SecondaryInfoContainer.Parent = MainContainer
+    
+    local SecondaryGrid = Instance.new("UIGridLayout")
+    SecondaryGrid.CellSize = UDim2.new(1, 0, 0.5, -5)
+    SecondaryGrid.CellPadding = UDim2.new(0, 0, 0, 5)
+    SecondaryGrid.Parent = SecondaryInfoContainer
     
     -- Botão Discord
     local DiscordButton = Instance.new("TextButton")
     DiscordButton.Name = "DiscordButton"
-    DiscordButton.Size = UDim2.new(0, 150, 0, 40)
-    DiscordButton.Position = UDim2.new(0.5, -75, 1, -50)
-    DiscordButton.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+    DiscordButton.Size = UDim2.new(0.6, 0, 0.1, 0)
+    DiscordButton.Position = UDim2.new(0.2, 0, 0.85, 0)
+    DiscordButton.AnchorPoint = Vector2.new(0.5, 0.5)
+    DiscordButton.Position = UDim2.new(0.5, 0, 0.85, 0)
+    DiscordButton.BackgroundColor3 = Color3.fromRGB(212, 175, 55)
     DiscordButton.BorderSizePixel = 0
     DiscordButton.Text = "JOIN DISCORD"
-    DiscordButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    DiscordButton.Font = Enum.Font.GothamBold
+    DiscordButton.TextColor3 = Color3.fromRGB(0, 0, 0)
     DiscordButton.TextScaled = true
+    DiscordButton.Font = Enum.Font.GothamBold
     DiscordButton.Parent = MainContainer
     
     local DiscordCorner = Instance.new("UICorner")
@@ -87,65 +156,119 @@ local function CreateBlurUI()
         -- Notificação
         local notif = Instance.new("TextLabel")
         notif.Text = "Discord link copied!"
-        notif.Size = UDim2.new(0, 200, 0, 40)
-        notif.Position = UDim2.new(0.5, -100, 0, -50)
-        notif.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        notif.BackgroundTransparency = 0.3
-        notif.TextColor3 = Color3.fromRGB(255, 255, 255)
-        notif.Font = Enum.Font.Gotham
+        notif.Size = UDim2.new(0.8, 0, 0.08, 0)
+        notif.Position = UDim2.new(0.1, 0, 0.75, 0)
+        notif.BackgroundColor3 = Color3.fromRGB(212, 175, 55)
+        notif.BackgroundTransparency = 0.1
+        notif.TextColor3 = Color3.fromRGB(0, 0, 0)
         notif.TextScaled = true
+        notif.Font = Enum.Font.GothamBold
         notif.Parent = MainContainer
         
         local notifCorner = Instance.new("UICorner")
-        notifCorner.CornerRadius = UDim.new(0, 8)
+        notifCorner.CornerRadius = UDim.new(0, 6)
         notifCorner.Parent = notif
         
         task.wait(2)
         notif:Destroy()
     end)
     
-    return ScreenGui, InfoFrame
+    return ScreenGui, MainInfoContainer, SecondaryInfoContainer
 end
 
--- Atualizar informações na UI
-local function UpdateUI(infoFrame)
+-- Função para criar item de informação com ícone
+local function CreateInfoItem(parent, iconId, text, value, color)
+    local ItemFrame = Instance.new("Frame")
+    ItemFrame.Name = "InfoItem"
+    ItemFrame.Size = UDim2.new(1, 0, 1, 0)
+    ItemFrame.BackgroundTransparency = 1
+    ItemFrame.Parent = parent
+    
+    local ItemLayout = Instance.new("UIListLayout")
+    ItemLayout.FillDirection = Enum.FillDirection.Horizontal
+    ItemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    ItemLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    ItemLayout.Padding = UDim.new(0, 10)
+    ItemLayout.Parent = ItemFrame
+    
+    -- Ícone
+    local Icon = Instance.new("ImageLabel")
+    Icon.Name = "Icon"
+    Icon.Size = UDim2.new(0, 25, 0, 25)
+    Icon.BackgroundTransparency = 1
+    Icon.Image = iconId
+    Icon.Parent = ItemFrame
+    
+    -- Texto
+    local TextLabel = Instance.new("TextLabel")
+    TextLabel.Name = "TextLabel"
+    TextLabel.Size = UDim2.new(1, -35, 1, 0)
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Text = text .. ": " .. value
+    TextLabel.TextColor3 = color or Color3.fromRGB(255, 255, 255)
+    TextLabel.TextScaled = true
+    TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TextLabel.Font = Enum.Font.Gotham
+    TextLabel.Parent = ItemFrame
+    
+    return ItemFrame
+end
+
+-- Atualizar UI Responsiva
+local function UpdateResponsiveUI(mainInfoContainer, secondaryInfoContainer)
     local afkHours = math.floor((os.time() - Stats.StartTime) / 3600)
     local afkMinutes = math.floor(((os.time() - Stats.StartTime) % 3600) / 60)
     
-    -- Limpar informações antigas
-    for _, child in ipairs(infoFrame:GetChildren()) do
-        if child:IsA("TextLabel") then
+    -- Limpar containers
+    for _, child in ipairs(mainInfoContainer:GetChildren()) do
+        if child:IsA("Frame") then
             child:Destroy()
         end
     end
     
-    -- Criar novas informações
-    local infoTexts = {
-        "💰 Money: $" .. tostring(Stats.Money),
-        "🌱 Seeds Purchased: " .. (next(Stats.SeedsPurchased) and "Yes" or "No"),
-        "🏗️ Platforms: " .. Stats.PlatformsPurchased,
-        "📏 Rows: " .. Stats.RowsUnlocked,
-        "⏰ AFK Time: " .. afkHours .. "h " .. afkMinutes .. "m",
-        "⚡ Status: ACTIVE",
-        "🎮 Script: Blessed Hub Kaitun",
-        "👤 Player: " .. LocalPlayer.Name
+    for _, child in ipairs(secondaryInfoContainer:GetChildren()) do
+        if child:IsA("Frame") then
+            child:Destroy()
+        end
+    end
+    
+    -- Informações principais
+    local mainInfoData = {
+        {Icon = IconIds.Money, Text = "Money", Value = tostring(Stats.Money), Color = Color3.fromRGB(212, 175, 55)},
+        {Icon = IconIds.Seeds, Text = "Seeds", Value = next(Stats.SeedsPurchased) and "ACTIVE" or "INACTIVE", Color = Color3.fromRGB(76, 175, 80)},
+        {Icon = IconIds.Rows, Text = "Rows", Value = tostring(Stats.RowsUnlocked), Color = Color3.fromRGB(33, 150, 243)},
+        {Icon = IconIds.Time, Text = "AFK Time", Value = afkHours .. "h " .. afkMinutes .. "m", Color = Color3.fromRGB(156, 39, 176)}
     }
     
-    for i, text in ipairs(infoTexts) do
-        local InfoLabel = Instance.new("TextLabel")
-        InfoLabel.Name = "Info_" .. i
-        InfoLabel.Size = UDim2.new(1, 0, 0, 25)
-        InfoLabel.BackgroundTransparency = 1
-        InfoLabel.Text = text
-        InfoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        InfoLabel.TextXAlignment = Enum.TextXAlignment.Left
-        InfoLabel.Font = Enum.Font.Gotham
-        InfoLabel.TextScaled = true
-        InfoLabel.Parent = infoFrame
+    for _, info in ipairs(mainInfoData) do
+        CreateInfoItem(mainInfoContainer, info.Icon, info.Text, info.Value, info.Color)
+    end
+    
+    -- Informações secundárias
+    local secondaryInfoData = {
+        {Icon = IconIds.Player, Text = "Player", Value = LocalPlayer.Name, Color = Color3.fromRGB(200, 200, 200)},
+        {Icon = IconIds.Status, Text = "Status", Value = "ACTIVE", Color = Color3.fromRGB(76, 175, 80)},
+        {Icon = IconIds.AntiAFK, Text = "Anti-AFK", Value = Config["Anti AFK"] and "ON" or "OFF", Color = Color3.fromRGB(255, 193, 7)},
+        {Icon = IconIds.Performance, Text = "Performance", Value = "MAX", Color = Color3.fromRGB(33, 150, 243)},
+        {Icon = IconIds.Farm, Text = "Auto Farm", Value = "ENABLED", Color = Color3.fromRGB(156, 39, 176)},
+        {Icon = IconIds.Status, Text = "Script", Value = "Blessed Hub", Color = Color3.fromRGB(212, 175, 55)}
+    }
+    
+    for _, info in ipairs(secondaryInfoData) do
+        CreateInfoItem(secondaryInfoContainer, info.Icon, info.Text, info.Value, info.Color)
     end
 end
 
--- White Screen Corrigido
+-- Anti-Lag Externo
+local function LoadAntiLag()
+    if not Config["Performance"]["Anti Lag"] then return end
+    
+    pcall(function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-antilag-universal-test-30627"))()
+    end)
+end
+
+-- White Screen
 local function WhiteScreen()
     if not Config["Performance"]["White Screen"] then return end
     
@@ -154,17 +277,10 @@ local function WhiteScreen()
             pcall(function()
                 local lighting = game:GetService("Lighting")
                 lighting.Ambient = Color3.new(1, 1, 1)
-                lighting.Brightness = 2
+                lighting.Brightness = 3
                 lighting.GlobalShadows = false
                 lighting.OutdoorAmbient = Color3.new(1, 1, 1)
-                
-                -- Forçar white screen no workspace também
-                for _, obj in pairs(workspace:GetDescendants()) do
-                    if obj:IsA("Part") then
-                        obj.Material = Enum.Material.SmoothPlastic
-                        obj.Color = Color3.new(1, 1, 1)
-                    end
-                end
+                lighting.ClockTime = 12
             end)
             task.wait(5)
         end
@@ -187,46 +303,6 @@ local function RedeemCodes()
     end
 end
 
--- Anti-Lag Melhorado
-local function AntiLag()
-    if not Config["Performance"]["Anti Lag"] then return end
-    
-    spawn(function()
-        while Config["Performance"]["Anti Lag"] do
-            pcall(function()
-                -- Remover texturas e efeitos
-                for _, obj in pairs(workspace:GetDescendants()) do
-                    if obj:IsA("Decal") or obj:IsA("Texture") then
-                        obj:Destroy()
-                    end
-                    
-                    if obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Fire") then
-                        obj.Enabled = false
-                    end
-                    
-                    if obj:IsA("SurfaceLight") or obj:IsA("PointLight") or obj:IsA("SpotLight") then
-                        obj.Enabled = false
-                    end
-                    
-                    if obj:IsA("BasePart") then
-                        obj.Material = Enum.Material.Plastic
-                    end
-                end
-                
-                -- Configuração gráfica
-                local args = {
-                    [1] = {
-                        ["Value"] = true,
-                        ["Setting"] = "Graphics"
-                    }
-                }
-                ReplicatedStorage.Remotes.ChangeSetting:FireServer(unpack(args))
-            end)
-            task.wait(10)
-        end
-    end)
-end
-
 -- Auto Buy Seeds FAST
 local function AutoBuySeeds()
     if not Config["Auto Buy"]["Seeds"]["Enable"] then return end
@@ -238,13 +314,7 @@ local function AutoBuySeeds()
                     if enabled then
                         ReplicatedStorage.Remotes.BuyItem:FireServer(seed)
                         Stats.SeedsPurchased[seed] = (Stats.SeedsPurchased[seed] or 0) + 1
-                        
-                        -- FAST MODE - delay reduzido
-                        if Config["Auto Buy"]["Seeds"]["Fast Mode"] then
-                            task.wait(0.05)
-                        else
-                            task.wait(0.5)
-                        end
+                        task.wait(Config["Auto Buy"]["Seeds"]["Fast Mode"] and 0.05 or 0.5)
                     end
                 end
             end)
@@ -278,7 +348,7 @@ local function AutoBuyPlatform()
     
     local function GetMyPlot()
         for i = 1, 6 do
-            local plot = Workspace.Plots:FindFirstChild(tostring(i))
+            local plot = Workspace.Plots:FindChild(tostring(i))
             if plot and plot:GetAttribute("Owner") == LocalPlayer.Name then
                 return plot, i
             end
@@ -299,7 +369,6 @@ local function AutoBuyPlatform()
                         if price > 0 then
                             local args = {[1] = tostring(i)}
                             ReplicatedStorage.Remotes.BuyPlatform:FireServer(unpack(args))
-                            Stats.PlatformsPurchased = Stats.PlatformsPurchased + 1
                             task.wait(1)
                         end
                     end
@@ -329,46 +398,36 @@ local function AutoUnlockRows()
     end)
 end
 
--- Auto Sell por Raridade/Mutação
+-- Auto Sell
 local function SetupAutoSell()
     spawn(function()
         while true do
-            -- Auto Sell Brainrot
             if Config["Auto Play"]["Auto Sell"]["Brainrot"]["Enable"] then
                 for rarity, enabled in pairs(Config["Auto Play"]["Auto Sell"]["Brainrot"]["Select Brainrot Rarity"]) do
                     if enabled then
                         local args = {[1] = rarity}
-                        pcall(function()
-                            ReplicatedStorage.Remotes.AutoSell:FireServer(unpack(args))
-                        end)
+                        pcall(function() ReplicatedStorage.Remotes.AutoSell:FireServer(unpack(args)) end)
                         task.wait(1)
                     end
                 end
-                
                 for mutation, enabled in pairs(Config["Auto Play"]["Auto Sell"]["Brainrot"]["Select Brainrot Mutation"]) do
                     if enabled then
                         local args = {[1] = mutation}
-                        pcall(function()
-                            ReplicatedStorage.Remotes.AutoSell:FireServer(unpack(args))
-                        end)
+                        pcall(function() ReplicatedStorage.Remotes.AutoSell:FireServer(unpack(args)) end)
                         task.wait(1)
                     end
                 end
             end
             
-            -- Auto Sell Plants
             if Config["Auto Play"]["Auto Sell"]["Plants"]["Enable"] then
                 for rarity, enabled in pairs(Config["Auto Play"]["Auto Sell"]["Plants"]["Select Plants Rarity"]) do
                     if enabled then
                         local args = {[1] = rarity}
-                        pcall(function()
-                            ReplicatedStorage.Remotes.AutoSell:FireServer(unpack(args))
-                        end)
+                        pcall(function() ReplicatedStorage.Remotes.AutoSell:FireServer(unpack(args)) end)
                         task.wait(1)
                     end
                 end
             end
-            
             task.wait(30)
         end
     end)
@@ -391,6 +450,8 @@ end
 
 -- Anti-AFK
 local function SetupAntiAFK()
+    if not Config["Anti AFK"] then return end
+    
     game:GetService("Players").LocalPlayer.Idled:Connect(function()
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new())
@@ -410,15 +471,13 @@ end
 local function Initialize()
     print("🎮 Blessed Hub Kaitun Loading...")
     
-    -- Criar UI
-    local UI, InfoFrame = CreateBlurUI()
+    -- Criar UI Responsiva
+    local UI, MainInfoContainer, SecondaryInfoContainer = CreateResponsiveUI()
     
-    -- Configurações de performance
+    -- Configurações
     FPSBoost()
     WhiteScreen()
-    AntiLag()
-    
-    -- Sistemas básicos
+    LoadAntiLag()
     SetupAntiAFK()
     MonitorMoney()
     
@@ -437,7 +496,7 @@ local function Initialize()
     -- Atualizar UI
     spawn(function()
         while task.wait(3) do
-            UpdateUI(InfoFrame)
+            UpdateResponsiveUI(MainInfoContainer, SecondaryInfoContainer)
         end
     end)
     
@@ -453,11 +512,6 @@ function StartAllFunctions()
     AutoBuyPlatform()
     AutoUnlockRows()
 end
-
--- Resposta à sua pergunta:
--- SIM, você precisa transformar em loadstring para funcionar corretamente!
--- Use este comando:
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/seuusuario/seurepositorio/main/script.lua"))()
 
 -- Iniciar o script
 Initialize()
